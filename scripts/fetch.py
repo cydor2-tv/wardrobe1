@@ -2,7 +2,7 @@ import os
 import json
 import requests
 
-API_KEY = os.environ.get("RAPIDAPI_KEY")
+API_KEY = os.environ.get("RAPIDAPI_KEY", "").strip()
 OUTPUT_DIR = "public"
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "index.html")
 
@@ -10,22 +10,49 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 headers_base = {
     "Content-Type": "application/json",
-    "x-rapidapi-key": API_KEY or ""
+    "x-rapidapi-key": API_KEY
 }
 
 items_data = []
 
-# 1. Grailed lekérdezés
+# Tartalék elemek arra az esetre, ha az API nem válaszolna
+FALLBACK_ITEMS = [
+    {
+        "title": "Cyberpunk Tactical Harness Vest",
+        "price": "$89.00",
+        "link": "https://www.grailed.com",
+        "images": ["https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=500"],
+        "source": "Grailed / Demo"
+    },
+    {
+        "title": "Techwear Waterproof Cargo Pants",
+        "price": "$120.00",
+        "link": "https://www.poshmark.com",
+        "images": ["https://images.unsplash.com/photo-1517445312882-bc9910d016b7?w=500"],
+        "source": "Poshmark / Demo"
+    },
+    {
+        "title": "Gothic Buckle Leather Boots",
+        "price": "$145.00",
+        "link": "https://www.depop.com",
+        "images": ["https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500"],
+        "source": "Depop / Demo"
+    }
+]
+
 def fetch_grailed():
+    if not API_KEY:
+        print("RAPIDAPI_KEY környezeti változó hiányzik!")
+        return
     url = "https://grailed.p.rapidapi.com/search"
     headers = {**headers_base, "x-rapidapi-host": "grailed.p.rapidapi.com"}
-    params = {"query": "jacket", "page": "1", "hitsPerPage": "12"}
+    params = {"query": "techwear", "page": "1", "hitsPerPage": "10"}
     try:
         res = requests.get(url, headers=headers, params=params, timeout=10)
-        print(f"Grailed Státusz: {res.status_code}")
+        print(f"Grailed HTTP válaszkód: {res.status_code}")
         if res.status_code == 200:
             data = res.json()
-            hits = data.get("data", {}).get("search", {}).get("hits", [])
+            hits = data.get("data", {}).get("search", {}).get("hits", []) or data.get("hits", [])
             for item in hits:
                 title = item.get("title") or item.get("name") or "Grailed Termék"
                 price = f"${item.get('price', 'N/A')}"
@@ -39,40 +66,18 @@ def fetch_grailed():
                     "images": img_list[:1],
                     "source": "Grailed"
                 })
+        else:
+            print(f"API Hiba válasz: {res.text[:200]}")
     except Exception as e:
-        print(f"Grailed hiba: {e}")
-
-# 2. Poshmark lekérdezés
-def fetch_poshmark():
-    url = "https://poshmark.p.rapidapi.com/search"
-    headers = {**headers_base, "x-rapidapi-host": "poshmark.p.rapidapi.com"}
-    params = {"query": "nike", "domain": "com"}
-    try:
-        res = requests.get(url, headers=headers, params=params, timeout=10)
-        print(f"Poshmark Státusz: {res.status_code}")
-        if res.status_code == 200:
-            data = res.json()
-            data_list = data.get("data", [])
-            for item in data_list:
-                title = item.get("title", "Poshmark Termék")
-                price = f"${item.get('price', 'N/A')}"
-                link = f"https://poshmark.com/listing/{item.get('id')}" if item.get('id') else "https://poshmark.com"
-                picture = item.get("picture_url")
-                items_data.append({
-                    "title": title,
-                    "price": price,
-                    "link": link,
-                    "images": [picture] if picture else [],
-                    "source": "Poshmark"
-                })
-    except Exception as e:
-        print(f"Poshmark hiba: {e}")
+        print(f"Lekérdezési hiba: {e}")
 
 fetch_grailed()
-fetch_poshmark()
+
+# Ha nem érkezett élő adat, a tartalék listát jelenítjük meg
+display_items = items_data if len(items_data) > 0 else FALLBACK_ITEMS
 
 cards_html = ""
-for item in items_data:
+for item in display_items:
     imgs_html = ""
     imgs = item["images"] if item["images"] else ["https://via.placeholder.com/300x400/1a1a1a/00ffcc?text=Nincs+K%C3%A9p"]
     for img in imgs:
@@ -217,7 +222,7 @@ html_content = f"""<!DOCTYPE html>
     </header>
 
     <div class="grid-container">
-        {cards_html if cards_html else '<p style="text-align:center; grid-column: 1/-1;">Nincs találat vagy az API kulcs nem érvényes.</p>'}
+        {cards_html}
     </div>
 </body>
 </html>
@@ -226,4 +231,4 @@ html_content = f"""<!DOCTYPE html>
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(html_content)
 
-print(f"Sikeresen generálva: {OUTPUT_FILE}, Összes elem: {len(items_data)}")
+print(f"Sikeresen generálva: {OUTPUT_FILE}, Elemek száma: {len(display_items)}")
