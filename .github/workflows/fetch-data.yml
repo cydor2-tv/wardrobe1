@@ -1,9 +1,14 @@
-name: Generate Cyberpunk Wardrobe Catalog
+name: Generáld a Cyberpunk Ruházat Katalógusát
 
 on:
+  push:
+    branches:
+      - main
+      - master
+      - fő
   schedule:
-    - cron: '0 */12 * * *'  # 12 óránként automatikusan frissíti a kínálatot
-  workflow_dispatch:        # Kézi indítási lehetőség a GitHub felületéről
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,15 +17,15 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Code Checkout
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Python Környezet Beállítása
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Függőségek Telepítése
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
