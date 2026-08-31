@@ -22,21 +22,34 @@ def log(msg):
     print(msg)
     debug_logs.append(str(msg))
 
-log("=== TÖBBFORRÁSOS KATALÓGUS GENERÁLÁS ===")
+# -------------------------------------------------------------------
+# 1. HELPER / PARSER FÜGGVÉNYEK
+# -------------------------------------------------------------------
 
-# 1. HÁDA WEBSHOP SCRAPER (Női és S-es méret szűréssel)
+def safe_extract_list(data, keys):
+    """Biztonságosan kinyeri a listát beágyazott dict-ből anélkül, hogy hibát dobona."""
+    current = data
+    for k in keys:
+        if isinstance(current, dict):
+            current = current.get(k, {})
+        else:
+            return []
+    return current if isinstance(current, list) else []
+
+# -------------------------------------------------------------------
+# 2. HÁDA KÜLÖNÁLLÓ SCRAPER (HTML alapú)
+# -------------------------------------------------------------------
+
 def fetch_hada():
-    log("\n--- [1/5] Háda Webshop Lekérdezés (Targeted & Strict Filter) ---")
+    log("\n--- [1/5] Háda Webshop Lekérdezés ---")
     if not HAS_BS4:
         log("❌ Háda kihagyva (hiányzó bs4 modul)")
         return
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    }
-    
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     search_terms = ["taktikai", "bor melleny", "zsebes melleny", "motoros melleny"]
     
+    count_before = len(items_data)
     for term in search_terms:
         url = f"https://hadawebshop.hu/catalogsearch/result/?q={term}"
         try:
@@ -52,12 +65,8 @@ def fetch_hada():
                     
                     title = title_elem.get_text(strip=True) if title_elem else ""
                     
-                    # SZŰRÉS 1: S méretű ruhák kizárása
-                    if re.search(r'\bS\b', title, re.IGNORECASE):
-                        continue
-                    
-                    # SZŰRÉS 2: Női ruhák és irreleváns márkák kizárása
-                    if re.search(r'\b(női|noi|dolls|woman|women)\b', title, re.IGNORECASE):
+                    # S-es méret és női ruhák szűrése
+                    if re.search(r'\b(S|női|noi|dolls|woman|women)\b', title, re.IGNORECASE):
                         continue
                         
                     link = title_elem['href'] if title_elem and title_elem.has_attr('href') else "https://hadawebshop.hu"
@@ -75,165 +84,128 @@ def fetch_hada():
         except Exception as e:
             log(f"❌ Háda hiba [{term}]: {e}")
             
-    log(f"✅ Hádáról behelyezett releváns termékek: {len(items_data)}")
+    log(f"✅ Hádáról behelyezett releváns termékek: {len(items_data) - count_before}")
 
-# 2. TEMU SCRAPER
-def fetch_temu():
-    log("\n--- [2/5] Temu API Keresés ---")
+# -------------------------------------------------------------------
+# 3. CONFIG-ALAPÚ API PROVIDEREK A RAPIDAPI-HOZ
+# -------------------------------------------------------------------
+
+API_PROVIDERS = [
+    {
+        "name": "Temu",
+        "url": "https://temu-product-scraper.p.rapidapi.com/temu",
+        "method": "GET",
+        "host": "temu-product-scraper.p.rapidapi.com",
+        "params": {"keyword": "tactical vest", "maxItems": "6"},
+        "path_to_list": ["products"],
+        "parse_item": lambda x: {
+            "title": (x.get("title") or x.get("name") or "Temu Vest")[:50],
+            "price": str(x.get("price", "N/A")),
+            "link": x.get("url") or x.get("link") or "https://temu.com",
+            "images": [x.get("image") or x.get("thumbnail")]
+        }
+    },
+    {
+        "name": "Vinted",
+        "url": "https://vinted-second-hand-marketplace-data-api.p.rapidapi.com/vinted/v1/catalog_search",
+        "method": "POST",
+        "host": "vinted-second-hand-marketplace-data-api.p.rapidapi.com",
+        "json": {"query": "tactical vest"},
+        "path_to_list": ["items"],
+        "parse_item": lambda x: {
+            "title": (x.get("title") or "Vinted Vest")[:50],
+            "price": f"{x.get('price')} EUR" if x.get("price") else "N/A",
+            "link": x.get("url") or "https://vinted.com",
+            "images": [x.get("photo", {}).get("url") if isinstance(x.get("photo"), dict) else None]
+        }
+    },
+    {
+        "name": "AliExpress",
+        "url": "https://aligate-aliexpress-data-api.p.rapidapi.com/api/v2/search/text",
+        "method": "GET",
+        "host": "aligate-aliexpress-data-api.p.rapidapi.com",
+        "params": {"locale": "en_US", "query": "cyberpunk vest", "country": "US", "page": "1", "currency": "USD"},
+        "path_to_list": ["data", "items"],
+        "parse_item": lambda x: {
+            "title": (x.get("title") or "AliExpress Vest")[:50],
+            "price": str(x.get("sku", {}).get("def", {}).get("price") or x.get("price") or "N/A"),
+            "link": x.get("itemUrl") if str(x.get("itemUrl")).startswith("http") else f"https:{x.get('itemUrl')}",
+            "images": [x.get("image")]
+        }
+    },
+    {
+        "name": "FB Marketplace",
+        "url": "https://facebook-pages-scraper2.p.rapidapi.com/get_facebook_marketplace_items_listing",
+        "method": "GET",
+        "host": "facebook-pages-scraper2.p.rapidapi.com",
+        "params": {
+            "query": "tactical vest",
+            "commerce_search_sort_by": "BEST_MATCH",
+            "filter_location_latitude": "47.4979",
+            "filter_location_longitude": "19.0402",
+            "filter_radius_km": "100",
+            "proxy_country": "gb"
+        },
+        "path_to_list": ["data"],
+        "parse_item": lambda x: {
+            "title": (x.get("title") or "FB Item")[:50],
+            "price": str(x.get("price", {}).get("formatted_amount") if isinstance(x.get("price"), dict) else "N/A"),
+            "link": x.get("url") if str(x.get("url")).startswith("http") else f"https://facebook.com{x.get('url')}",
+            "images": [x.get("primary_listing_photo", {}).get("image", {}).get("uri") if isinstance(x.get("primary_listing_photo"), dict) else None]
+        }
+    }
+]
+
+def run_api_providers():
     if not API_KEY:
+        log("\n⚠️ RAPIDAPI_KEY nincs beállítva, API hívások kihagyva.")
         return
-    url = "https://temu-product-scraper.p.rapidapi.com/temu"
-    headers = {
-        "x-rapidapi-key": API_KEY,
-        "x-rapidapi-host": "temu-product-scraper.p.rapidapi.com"
-    }
-    params = {"keyword": "tactical vest", "maxItems": "6"}
-    try:
-        res = requests.get(url, headers=headers, params=params, timeout=15)
-        log(f"Temu HTTP Válaszkód: {res.status_code}")
-        if res.status_code == 200:
-            data = res.json()
-            products = data.get("products", []) or data.get("data", []) or (data if isinstance(data, list) else [])
-            log(f"✅ Temu talált elemek: {len(products)}")
-            for item in products[:6]:
-                title = item.get("title") or item.get("name") or "Temu Tactical Vest"
-                price = item.get("price") or "N/A"
-                link = item.get("url") or item.get("link") or "https://temu.com"
-                img = item.get("image") or item.get("thumbnail")
-                items_data.append({
-                    "title": title[:50] + "..." if len(title) > 50 else title,
-                    "price": str(price),
-                    "link": link,
-                    "images": [img] if img else [],
-                    "source": "Temu"
-                })
-        else:
-            log(f"❌ Temu API Hiba: {res.status_code}")
-    except Exception as e:
-        log(f"❌ Kivétel (Temu): {e}")
 
-# 3. VINTED SCRAPER
-def fetch_vinted():
-    log("\n--- [3/5] Vinted API Keresés ---")
-    if not API_KEY:
-        return
-    url = "https://vinted-second-hand-marketplace-data-api.p.rapidapi.com/vinted/v1/catalog_search"
-    headers = {
-        "x-rapidapi-key": API_KEY,
-        "x-rapidapi-host": "vinted-second-hand-marketplace-data-api.p.rapidapi.com",
-        "Content-Type": "application/json"
-    }
-    payload = {"query": "tactical vest"}
-    try:
-        res = requests.post(url, headers=headers, json=payload, timeout=15)
-        log(f"Vinted HTTP Válaszkód: {res.status_code}")
-        if res.status_code == 200:
-            data = res.json()
-            products = data.get("items", []) or data.get("products", [])
-            log(f"✅ Vinted talált elemek: {len(products)}")
-            for item in products[:6]:
-                title = item.get("title") or "Vinted Vest"
-                price = item.get("price") or item.get("total_item_price") or "N/A"
-                link = item.get("url") or "https://vinted.com"
-                img = item.get("photo", {}).get("url") if isinstance(item.get("photo"), dict) else None
-                items_data.append({
-                    "title": title[:50] + "..." if len(title) > 50 else title,
-                    "price": f"{price} EUR" if isinstance(price, (int, float)) else str(price),
-                    "link": link,
-                    "images": [img] if img else [],
-                    "source": "Vinted"
-                })
-        else:
-            log(f"❌ Vinted API Hiba: {res.status_code}")
-    except Exception as e:
-        log(f"❌ Kivétel (Vinted): {e}")
+    for idx, provider in enumerate(API_PROVIDERS, start=2):
+        log(f"\n--- [{idx}/5] {provider['name']} API Keresés ---")
+        headers = {
+            "x-rapidapi-key": API_KEY,
+            "x-rapidapi-host": provider["host"]
+        }
+        
+        try:
+            if provider["method"] == "GET":
+                res = requests.get(provider["url"], headers=headers, params=provider.get("params"), timeout=12)
+            else:
+                res = requests.post(provider["url"], headers=headers, json=provider.get("json"), timeout=12)
 
-# 4. ALIEXPRESS SCRAPER
-def fetch_aliexpress():
-    log("\n--- [4/5] AliExpress API Keresés ---")
-    if not API_KEY:
-        return
-    url = "https://aligate-aliexpress-data-api.p.rapidapi.com/api/v2/search/text"
-    headers = {
-        "x-rapidapi-key": API_KEY,
-        "x-rapidapi-host": "aligate-aliexpress-data-api.p.rapidapi.com"
-    }
-    params = {"locale": "en_US", "query": "cyberpunk vest", "country": "US", "page": "1", "currency": "USD"}
-    try:
-        res = requests.get(url, headers=headers, params=params, timeout=15)
-        log(f"AliExpress HTTP Válaszkód: {res.status_code}")
-        if res.status_code == 200:
-            data = res.json()
-            products = data.get("data", {}).get("items", []) or data.get("items", [])
-            log(f"✅ AliExpress talált elemek: {len(products)}")
-            for item in products[:6]:
-                title = item.get("title") or "AliExpress Tactical Item"
-                price = item.get("sku", {}).get("def", {}).get("price") or item.get("price") or "N/A"
-                link = item.get("itemUrl") or "https://aliexpress.com"
-                img = item.get("image")
-                items_data.append({
-                    "title": title[:50] + "..." if len(title) > 50 else title,
-                    "price": str(price),
-                    "link": link if str(link).startswith("http") else f"https:{link}",
-                    "images": [img] if img else [],
-                    "source": "AliExpress"
-                })
-        else:
-            log(f"❌ AliExpress API Hiba: {res.status_code}")
-    except Exception as e:
-        log(f"❌ Kivétel (AliExpress): {e}")
+            log(f"{provider['name']} HTTP Válaszkód: {res.status_code}")
+            
+            if res.status_code == 200:
+                raw_json = res.json()
+                
+                # Lista kinyerése
+                if isinstance(raw_json, list):
+                    items_list = raw_json
+                else:
+                    items_list = safe_extract_list(raw_json, provider["path_to_list"])
+                
+                log(f"✅ {provider['name']} talált elemek: {len(items_list)}")
+                
+                # Biztonságos feldolgozás (Szeletelési hiba elleni védelem)
+                for item in list(items_list)[:6]:
+                    if isinstance(item, dict):
+                        parsed = provider["parse_item"](item)
+                        parsed["source"] = provider["name"]
+                        items_data.append(parsed)
+            else:
+                log(f"❌ {provider['name']} API Hiba: HTTP {res.status_code}")
 
-# 5. FACEBOOK MARKETPLACE SCRAPER
-def fetch_facebook():
-    log("\n--- [5/5] Facebook Marketplace Keresés ---")
-    if not API_KEY:
-        return
-    url = "https://facebook-pages-scraper2.p.rapidapi.com/get_facebook_marketplace_items_listing"
-    headers = {
-        "x-rapidapi-key": API_KEY,
-        "x-rapidapi-host": "facebook-pages-scraper2.p.rapidapi.com"
-    }
-    params = {
-        "query": "tactical vest",
-        "commerce_search_sort_by": "BEST_MATCH",
-        "filter_location_latitude": "47.4979",
-        "filter_location_longitude": "19.0402",
-        "filter_radius_km": "100",
-        "proxy_country": "gb"
-    }
-    try:
-        res = requests.get(url, headers=headers, params=params, timeout=15)
-        log(f"Facebook Marketplace HTTP Válaszkód: {res.status_code}")
-        if res.status_code == 200:
-            data = res.json()
-            products = data.get("data", []) or data.get("items", [])
-            log(f"✅ Facebook Marketplace talált elemek: {len(products)}")
-            for item in products[:6]:
-                title = item.get("title") or "FB Marketplace Item"
-                price = item.get("price", {}).get("formatted_amount") if isinstance(item.get("price"), dict) else "N/A"
-                link = item.get("url") or "https://facebook.com/marketplace"
-                img = item.get("primary_listing_photo", {}).get("image", {}).get("uri") if isinstance(item.get("primary_listing_photo"), dict) else None
-                items_data.append({
-                    "title": title[:50] + "..." if len(title) > 50 else title,
-                    "price": str(price),
-                    "link": link if str(link).startswith("http") else f"https://facebook.com{link}",
-                    "images": [img] if img else [],
-                    "source": "FB Marketplace"
-                })
-        else:
-            log(f"❌ FB Marketplace API Hiba: {res.status_code}")
-    except Exception as e:
-        log(f"❌ Kivétel (FB Marketplace): {e}")
+        except Exception as e:
+            log(f"❌ Kivétel ({provider['name']}): {e}")
 
-# Végrehajtás
-try:
-    fetch_hada()
-    fetch_temu()
-    fetch_vinted()
-    fetch_aliexpress()
-    fetch_facebook()
-except Exception as main_e:
-    log(f"❌ Fő folyamat kivétel: {main_e}")
+# -------------------------------------------------------------------
+# 4. MAIN EXECUTOR & HTML RENDER
+# -------------------------------------------------------------------
+
+log("=== TÖBBFORRÁSOS KATALÓGUS GENERÁLÁS ===")
+fetch_hada()
+run_api_providers()
 
 cards_html = ""
 for item in items_data:
