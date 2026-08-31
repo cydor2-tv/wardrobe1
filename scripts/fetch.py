@@ -15,17 +15,19 @@ headers_base = {
 
 items_data = []
 
+# 1. Grailed lekérdezés
 def fetch_grailed():
     url = "https://grailed.p.rapidapi.com/search"
     headers = {**headers_base, "x-rapidapi-host": "grailed.p.rapidapi.com"}
-    params = {"query": "cyberpunk harness leather", "page": "1", "hitsPerPage": "10"}
+    params = {"query": "jacket", "page": "1", "hitsPerPage": "12"}
     try:
         res = requests.get(url, headers=headers, params=params, timeout=10)
+        print(f"Grailed Státusz: {res.status_code}")
         if res.status_code == 200:
             data = res.json()
             hits = data.get("data", {}).get("search", {}).get("hits", [])
             for item in hits:
-                title = item.get("title") or item.get("name") or "Grailed Item"
+                title = item.get("title") or item.get("name") or "Grailed Termék"
                 price = f"${item.get('price', 'N/A')}"
                 link = item.get("url") or "https://www.grailed.com"
                 images = item.get("cover_photo", {}).get("url") or item.get("photo_url")
@@ -34,23 +36,25 @@ def fetch_grailed():
                     "title": title,
                     "price": price,
                     "link": link,
-                    "images": img_list[:3],
+                    "images": img_list[:1],
                     "source": "Grailed"
                 })
     except Exception as e:
         print(f"Grailed hiba: {e}")
 
+# 2. Poshmark lekérdezés
 def fetch_poshmark():
     url = "https://poshmark.p.rapidapi.com/search"
     headers = {**headers_base, "x-rapidapi-host": "poshmark.p.rapidapi.com"}
-    params = {"query": "gothic harness belt", "domain": "com"}
+    params = {"query": "nike", "domain": "com"}
     try:
         res = requests.get(url, headers=headers, params=params, timeout=10)
+        print(f"Poshmark Státusz: {res.status_code}")
         if res.status_code == 200:
             data = res.json()
             data_list = data.get("data", [])
             for item in data_list:
-                title = item.get("title", "Poshmark Item")
+                title = item.get("title", "Poshmark Termék")
                 price = f"${item.get('price', 'N/A')}"
                 link = f"https://poshmark.com/listing/{item.get('id')}" if item.get('id') else "https://poshmark.com"
                 picture = item.get("picture_url")
@@ -70,7 +74,7 @@ fetch_poshmark()
 cards_html = ""
 for item in items_data:
     imgs_html = ""
-    imgs = item["images"] if item["images"] else ["https://via.placeholder.com/300x400/1a1a1a/00ffcc?text=No+Image"]
+    imgs = item["images"] if item["images"] else ["https://via.placeholder.com/300x400/1a1a1a/00ffcc?text=Nincs+K%C3%A9p"]
     for img in imgs:
         imgs_html += f'<img src="{img}" alt="Termékkép" loading="lazy">'
     
@@ -222,4 +226,4 @@ html_content = f"""<!DOCTYPE html>
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(html_content)
 
-print(f"Sikeresen generálva: {OUTPUT_FILE}")
+print(f"Sikeresen generálva: {OUTPUT_FILE}, Összes elem: {len(items_data)}")
