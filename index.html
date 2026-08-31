@@ -68,7 +68,6 @@
             z-index: 2;
             border: 1px solid var(--accent-neon);
         }
-        /* KÉPMÉRET-ARÁNY FIX: Nincs több levágás */
         .image-gallery {
             display: flex;
             align-items: center;
@@ -151,7 +150,7 @@
 <body>
     <header>
         <h1>Cyberpunk / Wasteland Wardrobe</h1>
-        <p style="color: #888; font-size: 13px;">Katalógus (Háda + Amazon.de + Temu + Shein)</p>
+        <p style="color: #888; font-size: 13px;">Katalógus (Háda + Temu + Vinted + AliExpress + FB Marketplace)</p>
     </header>
 
     <div class="grid-container">
@@ -159,12 +158,12 @@
     <div class="product-card">
         <div class="source-badge">Háda HU (bor melleny)</div>
         <div class="image-gallery">
-            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69815e3299799.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" alt="Férfi mellény M" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69ba0ebd03091.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" alt="Férfi mellény M" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
         </div>
         <div class="card-body">
             <h3>Férfi mellény M</h3>
-            <div class="price">7 999 Ft</div>
-            <a href="https://hadawebshop.hu/2069309-ferfi-melleny" target="_blank" rel="noopener noreferrer" class="buy-btn">MEGTEKINTÉS</a>
+            <div class="price">2 999 Ft</div>
+            <a href="https://hadawebshop.hu/2106999-ferfi-melleny" target="_blank" rel="noopener noreferrer" class="buy-btn">MEGTEKINTÉS</a>
         </div>
     </div>
     
@@ -213,18 +212,6 @@
             <h3>Férfi mellény XL</h3>
             <div class="price">6 999 Ft</div>
             <a href="https://hadawebshop.hu/2189336-ferfi-melleny" target="_blank" rel="noopener noreferrer" class="buy-btn">MEGTEKINTÉS</a>
-        </div>
-    </div>
-    
-    <div class="product-card">
-        <div class="source-badge">Háda HU (bor melleny)</div>
-        <div class="image-gallery">
-            <img src="https://hadawebshop.hu/media/catalog/product/6/a/6a72943bf3e7f.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" alt="Dolls Női mellény" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
-        </div>
-        <div class="card-body">
-            <h3>Dolls Női mellény</h3>
-            <div class="price">3 999 Ft</div>
-            <a href="https://hadawebshop.hu/2237506-noi-melleny" target="_blank" rel="noopener noreferrer" class="buy-btn">MEGTEKINTÉS</a>
         </div>
     </div>
     
@@ -363,18 +350,6 @@
     <div class="product-card">
         <div class="source-badge">Háda HU (bor melleny)</div>
         <div class="image-gallery">
-            <img src="https://hadawebshop.hu/media/catalog/product/6/9/693a2ce9a328a.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" alt="Női mellény One Size" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
-        </div>
-        <div class="card-body">
-            <h3>Női mellény One Size</h3>
-            <div class="price">6 999 Ft</div>
-            <a href="https://hadawebshop.hu/2034614-noi-melleny" target="_blank" rel="noopener noreferrer" class="buy-btn">MEGTEKINTÉS</a>
-        </div>
-    </div>
-    
-    <div class="product-card">
-        <div class="source-badge">Háda HU (bor melleny)</div>
-        <div class="image-gallery">
             <img src="https://hadawebshop.hu/media/catalog/product/6/9/694365f9c224c.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" alt="Boohoo Férfi mellény L" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
         </div>
         <div class="card-body">
@@ -462,19 +437,25 @@
         <h2>🛠 API DIAGNOSZTIKA ÉS KERESÉSI NAPLÓ</h2>
         <div class="debug-log">=== TÖBBFORRÁSOS KATALÓGUS GENERÁLÁS ===
 
---- [1/4] Háda Webshop Lekérdezés (Targeted & Filtered) ---
-✅ Hádáról behelyezett releváns termékek: 25
+--- [1/5] Háda Webshop Lekérdezés (Targeted & Strict Filter) ---
+✅ Hádáról behelyezett releváns termékek: 23
 
---- [2/4] German Amazon API Keresés ---
-Amazon.de HTTP Válaszkód: 502
-❌ Amazon.de API Hiba: 502 (Szerver oldali válaszhiány)
+--- [2/5] Temu API Keresés ---
+Temu HTTP Válaszkód: 429
+❌ Temu API Hiba: 429
 
---- [3/4] Shein API Keresés ---
-Shein HTTP Válaszkód: 404
-❌ Shein API Hiba: 404
+--- [3/5] Vinted API Keresés ---
+Vinted HTTP Válaszkód: 200
+✅ Vinted talált elemek: 0
 
---- [4/4] Temu API Keresés ---
-❌ Kivétel (Temu): HTTPSConnectionPool(host='temu-product-scraper.p.rapidapi.com', port=443): Read timed out. (read timeout=15)</div>
+--- [4/5] AliExpress API Keresés ---
+AliExpress HTTP Válaszkód: 200
+✅ AliExpress talált elemek: 0
+
+--- [5/5] Facebook Marketplace Keresés ---
+Facebook Marketplace HTTP Válaszkód: 200
+✅ Facebook Marketplace talált elemek: 2
+❌ Kivétel (FB Marketplace): unhashable type: 'slice'</div>
     </div>
 </body>
 </html>
