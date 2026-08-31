@@ -8,53 +8,26 @@ OUTPUT_FILE = os.path.join(OUTPUT_DIR, "index.html")
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-headers_base = {
-    "Content-Type": "application/json",
-    "x-rapidapi-key": API_KEY
-}
-
 items_data = []
 
-# Tartalék elemek arra az esetre, ha az API nem válaszolna
-FALLBACK_ITEMS = [
-    {
-        "title": "Cyberpunk Tactical Harness Vest",
-        "price": "$89.00",
-        "link": "https://www.grailed.com",
-        "images": ["https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=500"],
-        "source": "Grailed / Demo"
-    },
-    {
-        "title": "Techwear Waterproof Cargo Pants",
-        "price": "$120.00",
-        "link": "https://www.poshmark.com",
-        "images": ["https://images.unsplash.com/photo-1517445312882-bc9910d016b7?w=500"],
-        "source": "Poshmark / Demo"
-    },
-    {
-        "title": "Gothic Buckle Leather Boots",
-        "price": "$145.00",
-        "link": "https://www.depop.com",
-        "images": ["https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500"],
-        "source": "Depop / Demo"
-    }
-]
-
+# 1. Grailed API lekérdezése
 def fetch_grailed():
     if not API_KEY:
-        print("RAPIDAPI_KEY környezeti változó hiányzik!")
         return
     url = "https://grailed.p.rapidapi.com/search"
-    headers = {**headers_base, "x-rapidapi-host": "grailed.p.rapidapi.com"}
+    headers = {
+        "x-rapidapi-key": API_KEY,
+        "x-rapidapi-host": "grailed.p.rapidapi.com"
+    }
     params = {"query": "techwear", "page": "1", "hitsPerPage": "10"}
     try:
         res = requests.get(url, headers=headers, params=params, timeout=10)
-        print(f"Grailed HTTP válaszkód: {res.status_code}")
+        print(f"Grailed status: {res.status_code}")
         if res.status_code == 200:
             data = res.json()
             hits = data.get("data", {}).get("search", {}).get("hits", []) or data.get("hits", [])
             for item in hits:
-                title = item.get("title") or item.get("name") or "Grailed Termék"
+                title = item.get("title") or item.get("name") or "Grailed Item"
                 price = f"${item.get('price', 'N/A')}"
                 link = item.get("url") or "https://www.grailed.com"
                 images = item.get("cover_photo", {}).get("url") or item.get("photo_url")
@@ -66,28 +39,72 @@ def fetch_grailed():
                     "images": img_list[:1],
                     "source": "Grailed"
                 })
-        else:
-            print(f"API Hiba válasz: {res.text[:200]}")
     except Exception as e:
-        print(f"Lekérdezési hiba: {e}")
+        print(f"Grailed hiba: {e}")
 
+# 2. Poshmark Listings API lekérdezése
+def fetch_poshmark():
+    if not API_KEY:
+        return
+    url = "https://poshmark-listings-api.p.rapidapi.com/search"
+    headers = {
+        "x-rapidapi-key": API_KEY,
+        "x-rapidapi-host": "poshmark-listings-api.p.rapidapi.com"
+    }
+    params = {"query": "cyberpunk harness"}
+    try:
+        res = requests.get(url, headers=headers, params=params, timeout=10)
+        print(f"Poshmark status: {res.status_code}")
+        if res.status_code == 200:
+            data = res.json()
+            results = data.get("data", []) or data.get("listings", []) or []
+            for item in results:
+                title = item.get("title") or item.get("name") or "Poshmark Item"
+                price = item.get("price") or "N/A"
+                link = item.get("url") or item.get("link") or "https://poshmark.com"
+                img = item.get("picture") or item.get("cover_shot", {}).get("url")
+                items_data.append({
+                    "title": title,
+                    "price": f"${price}" if not str(price).startswith("$") else str(price),
+                    "link": link,
+                    "images": [img] if img else [],
+                    "source": "Poshmark"
+                })
+    except Exception as e:
+        print(f"Poshmark hiba: {e}")
+
+# Lekérdezések indítása
 fetch_grailed()
+fetch_poshmark()
 
-# Ha nem érkezett élő adat, a tartalék listát jelenítjük meg
+# Tartalék adatok, ha semmilyen élő találat nem érkezne
+FALLBACK_ITEMS = [
+    {
+        "title": "Cyberpunk Tactical Harness Vest",
+        "price": "$89.00",
+        "link": "https://www.grailed.com",
+        "images": ["https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600&auto=format&fit=crop"],
+        "source": "Grailed / Demo"
+    },
+    {
+        "title": "Wasteland Heavy Duty Leather Strap Vest",
+        "price": "$135.00",
+        "link": "https://www.poshmark.com",
+        "images": ["https://images.unsplash.com/photo-1517445312882-bc9910d016b7?w=600&auto=format&fit=crop"],
+        "source": "Poshmark / Demo"
+    }
+]
+
 display_items = items_data if len(items_data) > 0 else FALLBACK_ITEMS
 
 cards_html = ""
 for item in display_items:
-    imgs_html = ""
-    imgs = item["images"] if item["images"] else ["https://via.placeholder.com/300x400/1a1a1a/00ffcc?text=Nincs+K%C3%A9p"]
-    for img in imgs:
-        imgs_html += f'<img src="{img}" alt="Termékkép" loading="lazy">'
-    
+    img_src = item["images"][0] if item["images"] and item["images"][0] else "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600"
     cards_html += f"""
     <div class="product-card">
         <div class="source-badge">{item['source']}</div>
         <div class="image-gallery">
-            {imgs_html}
+            <img src="{img_src}" alt="Termékkép" loading="lazy">
         </div>
         <div class="card-body">
             <h3>{item['title']}</h3>
@@ -130,6 +147,7 @@ html_content = f"""<!DOCTYPE html>
             letter-spacing: 3px;
             text-transform: uppercase;
             margin: 0;
+            font-size: 26px;
         }}
         .grid-container {{
             display: grid;
@@ -151,12 +169,13 @@ html_content = f"""<!DOCTYPE html>
         .product-card:hover {{
             transform: translateY(-5px);
             border-color: var(--accent-neon);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
         }}
         .source-badge {{
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             color: var(--accent-neon);
             padding: 4px 8px;
             font-size: 11px;
@@ -167,15 +186,14 @@ html_content = f"""<!DOCTYPE html>
         }}
         .image-gallery {{
             display: flex;
-            height: 220px;
-            overflow-x: auto;
+            height: 240px;
+            overflow: hidden;
             background: #000;
         }}
         .image-gallery img {{
             width: 100%;
             height: 100%;
             object-fit: cover;
-            flex-shrink: 0;
         }}
         .card-body {{
             padding: 15px;
@@ -218,7 +236,7 @@ html_content = f"""<!DOCTYPE html>
 <body>
     <header>
         <h1>Cyberpunk / Wasteland Wardrobe</h1>
-        <p style="color: #888; font-size: 13px;">Automatizált termék-katalógus RapidAPI integrációval</p>
+        <p style="color: #888; font-size: 13px;">Élő Marketplace katalógus RapidAPI integrációval</p>
     </header>
 
     <div class="grid-container">
@@ -231,4 +249,4 @@ html_content = f"""<!DOCTYPE html>
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(html_content)
 
-print(f"Sikeresen generálva: {OUTPUT_FILE}, Elemek száma: {len(display_items)}")
+print(f"Generálás kész. Megjelenített termékek száma: {len(display_items)}")
