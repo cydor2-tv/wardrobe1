@@ -3,42 +3,457 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Diagnosztika</title>
+    <title>CYBERPUNK WARDROBE</title>
     <style>
-        body { background: #0a0a0c; color: #e0e0e0; font-family: monospace; padding: 20px; }
-        .debug-box { background: #111; border: 1px solid #ff0055; padding: 20px; border-radius: 6px; }
-        h1 { color: #00ffcc; }
-        pre { white-space: pre-wrap; word-break: break-all; color: #00ffcc; font-size: 14px; }
+        :root { --bg-color: #0a0a0c; --card-bg: #141419; --accent-neon: #00ffcc; --accent-pink: #ff0055; --text-color: #e0e0e0; --border-color: #2a2a35; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1400px; margin: 0 auto; }
+        .product-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+        .source-badge { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.85); color: var(--accent-neon); padding: 4px 8px; font-size: 11px; font-weight: bold; border-radius: 3px; border: 1px solid var(--accent-neon); }
+        .image-gallery { height: 320px; background: #08080b; padding: 10px; display: flex; justify-content: center; align-items: center; }
+        .image-gallery img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .card-body { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+        .card-body h3 { font-size: 14px; margin: 0 0 10px 0; height: 38px; overflow: hidden; }
+        .price { font-size: 18px; font-weight: bold; color: var(--accent-neon); margin-bottom: 15px; }
+        .buy-btn { text-align: center; background: var(--accent-pink); color: #fff; text-decoration: none; padding: 10px; font-size: 12px; font-weight: bold; border-radius: 4px; }
+        .debug-box { max-width: 1400px; margin: 50px auto; background: #111; border: 1px solid var(--accent-pink); padding: 20px; border-radius: 6px; }
+        .debug-log { color: #00ffcc; font-family: monospace; white-space: pre-wrap; font-size: 12px; }
     </style>
 </head>
 <body>
-    <h1>API Diagnosztikai Napló</h1>
-    <p>A nyers JSON válaszokat megtalálod a <strong>debug_logs</strong> mappában!</p>
+    <div class="grid-container">
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69ba0ebd03091.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Férfi mellény M</h3>
+            <div class="price">2 999 Ft</div>
+            <a href="https://hadawebshop.hu/2106999-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69ba10a0dc0ba.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Férfi mellény L</h3>
+            <div class="price">2 999 Ft</div>
+            <a href="https://hadawebshop.hu/2107354-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/6954876b1ab00.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Férfi mellény XXL</h3>
+            <div class="price">3 999 Ft</div>
+            <a href="https://hadawebshop.hu/2045259-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/8/6875ab9803136.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Férfi mellény XS</h3>
+            <div class="price">6 999 Ft</div>
+            <a href="https://hadawebshop.hu/1881861-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/a/6a2a11b8a0947.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Férfi mellény XL</h3>
+            <div class="price">6 999 Ft</div>
+            <a href="https://hadawebshop.hu/2189336-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/8/6871b81893596.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Fellini Férfi mellény</h3>
+            <div class="price">2 999 Ft</div>
+            <a href="https://hadawebshop.hu/1880606-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69c49aba56b64.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Bershka Férfi mellény M</h3>
+            <div class="price">7 999 Ft</div>
+            <a href="https://hadawebshop.hu/2117365-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/6993cfb2e28ab.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Essentiel Férfi mellény M</h3>
+            <div class="price">3 999 Ft</div>
+            <a href="https://hadawebshop.hu/2080067-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69ba0f13b45c1.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>burton Férfi mellény L</h3>
+            <div class="price">2 999 Ft</div>
+            <a href="https://hadawebshop.hu/2107062-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69ba0fd51bff6.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Asos Férfi mellény L</h3>
+            <div class="price">3 999 Ft</div>
+            <a href="https://hadawebshop.hu/2107205-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69bb5afce6db7.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Next Férfi mellény M</h3>
+            <div class="price">2 999 Ft</div>
+            <a href="https://hadawebshop.hu/2107348-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69bcae4685211.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Zara Férfi mellény M</h3>
+            <div class="price">3 999 Ft</div>
+            <a href="https://hadawebshop.hu/2108940-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69af803bf10ca.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Next Férfi mellény L</h3>
+            <div class="price">2 999 Ft</div>
+            <a href="https://hadawebshop.hu/2099680-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/6949fb7b3219b.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Bershka Férfi mellény XL</h3>
+            <div class="price">12 999 Ft</div>
+            <a href="https://hadawebshop.hu/2043224-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/694b4e2fadd75.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Degrees Férfi mellény XL</h3>
+            <div class="price">4 999 Ft</div>
+            <a href="https://hadawebshop.hu/2044126-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/6966fdc1add5c.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Livergy Férfi mellény L</h3>
+            <div class="price">6 999 Ft</div>
+            <a href="https://hadawebshop.hu/2055687-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/694365f9c224c.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Boohoo Férfi mellény L</h3>
+            <div class="price">3 999 Ft</div>
+            <a href="https://hadawebshop.hu/2039844-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/69211e475ef8f.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Engbers Férfi mellény L</h3>
+            <div class="price">2 999 Ft</div>
+            <a href="https://hadawebshop.hu/2019638-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/6917e8e310fad.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Zara Férfi mellény L</h3>
+            <div class="price">9 999 Ft</div>
+            <a href="https://hadawebshop.hu/2012839-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/9/6909656e8a18e.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Crane Férfi mellény XL</h3>
+            <div class="price">4 999 Ft</div>
+            <a href="https://hadawebshop.hu/1997280-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/8/68cf532cdc33e.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Boohoo Férfi mellény M</h3>
+            <div class="price">6 999 Ft</div>
+            <a href="https://hadawebshop.hu/1953162-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/8/68842b9004a98.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Primark Férfi mellény L</h3>
+            <div class="price">2 999 Ft</div>
+            <a href="https://hadawebshop.hu/1894631-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Háda HU</div>
+        <div class="image-gallery">
+            <img src="https://hadawebshop.hu/media/catalog/product/6/8/688ac4a182bfb.jpg?width=220&height=330&store=hada_hu_store_view&image-type=small_image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Esprit Férfi mellény XL</h3>
+            <div class="price">4 999 Ft</div>
+            <a href="https://hadawebshop.hu/1899307-ferfi-melleny" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Vinted</div>
+        <div class="image-gallery">
+            <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Veste vintage bleu marine Reebok Xxl</h3>
+            <div class="price">17.91 None</div>
+            <a href="https://www.vinted.fr/items/9849116394-veste-vintage-bleu-marine-reebok-xxl" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Vinted</div>
+        <div class="image-gallery">
+            <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>veste golf</h3>
+            <div class="price">30.0 None</div>
+            <a href="https://www.vinted.fr/items/9849116686-veste-golf" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Vinted</div>
+        <div class="image-gallery">
+            <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>veste h&m taille s jamais portée</h3>
+            <div class="price">20.0 None</div>
+            <a href="https://www.vinted.fr/items/9849116706-veste-hm-taille-s-jamais-portee" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Vinted</div>
+        <div class="image-gallery">
+            <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Veste camaïeu</h3>
+            <div class="price">5.0 None</div>
+            <a href="https://www.vinted.fr/items/9849116485-veste-camaieu" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Vinted</div>
+        <div class="image-gallery">
+            <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Veste bébé 23 mois</h3>
+            <div class="price">3.0 None</div>
+            <a href="https://www.vinted.fr/items/9849115424-veste-bebe-23-mois" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    
+    <div class="product-card">
+        <div class="source-badge">Vinted</div>
+        <div class="image-gallery">
+            <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
+        </div>
+        <div class="card-body">
+            <h3>Veste vintage femme adidas</h3>
+            <div class="price">40.0 None</div>
+            <a href="https://www.vinted.fr/items/9849115416-veste-vintage-femme-adidas" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+        </div>
+    </div>
+    </div>
     <div class="debug-box">
-        <pre>=== TÖBBFORRÁSOS KATALÓGUS GENERÁLÁS (DIAGNOSZTIKA) ===
+        <h2 style="color:#ff0055; margin-top:0;">🛠 API DIAGNOSZTIKA</h2>
+        <div class="debug-log">=== TÖBBFORRÁSOS KATALÓGUS GENERÁLÁS ===
 
 --- [1/5] Háda Webshop Lekérdezés ---
-✅ Hádáról behelyezett releváns termékek: 0
+✅ Hádáról behelyezett releváns termékek: 23
 
---- [2/5] Temu API Keresés ---
-Temu HTTP Válaszkód: 429
-❌ Temu API Hiba: HTTP 429
-❌ Hiba részletei: {'message': 'You have exceeded the MONTHLY quota for Searches on your current plan, BASIC. Upgrade your plan at https://rapidapi.com/gioopasquale/api/temu-product-scraper'}
-
---- [3/5] Vinted API Keresés ---
+--- Vinted API Keresés ---
 Vinted HTTP Válaszkód: 200
-📝 JSON mentve: debug_logs/vinted_response.json
-🔍 JSON gyökér kulcsok (Top-level keys): ['ok', 'meta', 'data']
+✅ Talált elemek: 20
+🔍 ELSŐ TERMÉK NYERS JSON-JA (Vinted):
+{
+  "id": 9849116394,
+  "title": "Veste vintage bleu marine Reebok Xxl",
+  "url": "https://www.vinted.fr/items/9849116394-veste-vintage-bleu-marine-reebok-xxl",
+  "price": {
+    "amount": 17.91,
+    "currency": "EUR"
+  },
+  "total_item_price": {
+    "amount": 19.51,
+    "currency": "EUR"
+  },
+  "service_fee": {
+    "amount": 1.6,
+    "currency": "EUR"
+  },
+  "brand": "Reebok",
+  "size": "XXL",
+  "condition": "Très bon état",
+  "is_visible": true,
+  "favourite_count": 0,
+  "view_count": 0,
+  "promoted": false,
+  "uploaded_ts": 1788213759,
+  "photos": [
+    {
+      "url": "https://images1.vinted.net/t/06_01a42_cVfCcWxYTNXsXoWFGC7Ef5mA/f800/1788213759.jpeg?s=9064f62fd7d49685323f72498dd26babc61cd3df",
+      "full_size_url": "https://images1.vinted.net/tc/06_01a42_cVfCcWxYTNXsXoWFGC7Ef5mA/1788213759.jpeg?s=7d107ea917713beeeda6559c6563bafc5b0b2ff7",
+      "dominant_color": "#4876C6",
+      "is_main": true,
+      "width": 600,
+      "height": 800,
+      "uploaded_ts": 1788213759
+    },
+    {
+      "url": "https://images1.vinted.net/t/02_001a8_iWxsc3n5KT7sbs6ivGmPuh1M/f800/1788213759.jpeg?s=b2e856f4d8b209aecf85ca12c330824dad979e14",
+      "full_size_url": "https://images1.vinted.net/tc/02_001a8_iWxsc3n5KT7sbs6ivGmPuh1M/1788213759.jpeg?s=87539c57c24ff2a75a7301007e950aabf404ed24",
+      "dominant_color": "#358ACB",
+      "is_main": false,
+      "width": 600,
+      "height": 800,
+      "uploaded_ts": 1788213759
+    },
+    {
+      "url": "https://images1.vinted.net/t/02_0139f_Be9B2YnMnmdsESbhGpanY1rg/f800/1788213759.jpeg?s=d41bbb1e1e0b003461b2e13afed96e8920caf716",
+      "full_size_url": "https://images1.vinted.net/tc/02_0139f_Be9B2YnMnmdsESbhGpanY1rg/1788213759.jpeg?s=574fad494261fcd7bf9e30d9207703fdb7ff05bd",
+      "dominant_color": "#134291",
+      "is_main": false,
+      "width": 600,
+      "height": 800,
+      "uploaded_ts": 1788213759
+    },
+    {
+      "url": "https://images1.vinted.net/t/06_00204_yKx1gfNWAoiL3Bia5ktecjLc/f800/1788213759.jpeg?s=dcf8ced3860b781ab0ee97b89e287351bed1ff28",
+      "full_size_url": "https://images1.vinted.net/tc/06_00204_yKx1gfNWAoiL3Bia5ktecjLc/1788213759.jpeg?s=b073eaebe72e574c1e957bf128188d2b0326e74f",
+      "dominant_color": "#979FA2",
+      "is_main": false,
+      "width": 600,
+      "height": 800,
+      "uploaded_ts": 1788213759
+    }
+  ],
+  "seller": {
+    "id": 149738233,
+    "login": "roroduu56",
+    "business": true,
+    "profile_url": "https://www.vinted.fr/member/149738233-roroduu56"
+  }
+}
 
---- [4/5] AliExpress API Keresés ---
+--- AliExpress API Keresés ---
 AliExpress HTTP Válaszkód: 200
-📝 JSON mentve: debug_logs/aliexpress_response.json
-🔍 JSON gyökér kulcsok (Top-level keys): ['meta', 'settings', 'item']
-
---- [5/5] FB Marketplace API Keresés ---
-FB Marketplace HTTP Válaszkód: 209
-❌ FB Marketplace API Hiba: HTTP 209
-❌ Hiba részletei: {'success': False, 'message': 'Access restricted: Too many different IP addresses detected for this account. Please upgrade your plan or contact support to unblock access immediately.'}</pre>
+❌ A válasz sikeres, de nem találtam listát az új útvonalakon sem.</div>
     </div>
 </body>
 </html>
