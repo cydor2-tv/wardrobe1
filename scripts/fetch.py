@@ -15,139 +15,150 @@ def log(msg):
     print(msg)
     debug_logs.append(str(msg))
 
-log(f"=== RAPIDAPI DIAGNOSZTIKA INDÍTÁSA ===")
+log("=== CYBERPUNK & WASTELAND KATALÓGUS GENERÁLÁS ===")
 if not API_KEY:
-    log("❌ KRITIKUS HIBA: A RAPIDAPI_KEY környezeti változó üres vagy nem található!")
+    log("❌ KRITIKUS HIBA: A RAPIDAPI_KEY környezeti változó üres!")
 else:
-    log(f"✅ RAPIDAPI_KEY megtalálva (Karakterszám: {len(API_KEY)}, Első 4 karakter: {API_KEY[:4]}...)")
+    log(f"✅ RAPIDAPI_KEY aktív (Karakterszám: {len(API_KEY)})")
 
 # 1. POSHMARK LISTINGS API
-def test_poshmark_listings():
-    log("\n--- [1/3] Poshmark Listings API Teszt ---")
+def fetch_poshmark_listings():
+    log("\n--- [1/3] Poshmark Listings API Keresés ---")
     url = "https://poshmark-listings-api.p.rapidapi.com/search"
     headers = {
         "x-rapidapi-key": API_KEY,
         "x-rapidapi-host": "poshmark-listings-api.p.rapidapi.com"
     }
-    params = {"query": "harness"}
+    params = {"query": "tactical harness"}
     try:
-        res = requests.get(url, headers=headers, params=params, timeout=12)
+        res = requests.get(url, headers=headers, params=params, timeout=20)
         log(f"HTTP Válaszkód: {res.status_code}")
-        log(f"Válasz szöveg (első 300 kar.): {res.text[:300]}")
         
         if res.status_code == 200:
             data = res.json()
-            raw_items = data.get("data", []) or data.get("listings", []) or (data if isinstance(data, list) else [])
-            log(f"✅ Talált elemek száma: {len(raw_items)}")
-            for item in raw_items[:10]:
-                title = item.get("title") or item.get("name") or "Poshmark Termék"
+            # Az API a 'products' mezőben küldi a termékeket
+            products = data.get("products", []) or data.get("data", []) or []
+            log(f"✅ Talált Poshmark Listings elemek száma: {len(products)}")
+            
+            for item in products[:12]:
+                title = item.get("title") or item.get("name") or "Tactical Harness"
                 price = item.get("price") or "N/A"
-                link = item.get("url") or item.get("link") or "https://poshmark.com"
-                img = item.get("picture") or item.get("cover_shot", {}).get("url")
+                link = item.get("link") or item.get("url") or "https://poshmark.com"
+                
+                # Kép kicsomagolása
+                img = None
+                if isinstance(item.get("cover_shot"), dict):
+                    img = item.get("cover_shot", {}).get("url")
+                if not img:
+                    img = item.get("picture") or item.get("image")
+                
                 items_data.append({
                     "title": title,
                     "price": f"${price}" if not str(price).startswith("$") else str(price),
                     "link": link,
                     "images": [img] if img else [],
-                    "source": "Poshmark Listings API"
+                    "source": "Poshmark Listings"
                 })
         else:
-            log(f"❌ Poshmark Listings API Hiba ({res.status_code})")
+            log(f"❌ Poshmark Listings Hiba: {res.status_code}")
     except Exception as e:
-        log(f"❌ Kivétel történt (Poshmark Listings): {e}")
+        log(f"❌ Kivétel (Poshmark Listings): {e}")
 
 # 2. POSHMARK FASHION RESALE API
-def test_poshmark_resale():
-    log("\n--- [2/3] Poshmark Fashion Resale API Teszt ---")
+def fetch_poshmark_resale():
+    log("\n--- [2/3] Poshmark Fashion Resale API Keresés ---")
     url = "https://poshmark-fashion-resale.p.rapidapi.com/poshmark/search"
     headers = {
         "x-rapidapi-key": API_KEY,
         "x-rapidapi-host": "poshmark-fashion-resale.p.rapidapi.com"
     }
-    params = {"query": "nike shoes", "limit": "10"}
+    params = {"query": "techwear vest", "limit": "12"}
     try:
-        res = requests.get(url, headers=headers, params=params, timeout=12)
+        res = requests.get(url, headers=headers, params=params, timeout=20)
         log(f"HTTP Válaszkód: {res.status_code}")
-        log(f"Válasz szöveg (első 300 kar.): {res.text[:300]}")
         
         if res.status_code == 200:
             data = res.json()
-            raw_items = data.get("data", []) or data.get("results", []) or (data if isinstance(data, list) else [])
-            log(f"✅ Talált elemek száma: {len(raw_items)}")
-            for item in raw_items[:10]:
-                title = item.get("title") or item.get("title_text") or "Poshmark Termék"
+            results = data.get("results", []) or data.get("data", []) or []
+            log(f"✅ Talált Poshmark Resale elemek száma: {len(results)}")
+            
+            for item in results[:12]:
+                title = item.get("title") or "Techwear Vest"
                 price = item.get("price") or item.get("formatted_price") or "N/A"
-                link = item.get("url") or item.get("link") or "https://poshmark.com"
-                img = item.get("picture_url") or item.get("cover_shot_url")
+                
+                # Link generálás hirdetés azonosítóból, ha nincs közvetlen URL
+                listing_id = item.get("listingId") or item.get("id")
+                link = item.get("url") or (f"https://poshmark.com/listing/{listing_id}" if listing_id else "https://poshmark.com")
+                
+                img = item.get("picture_url") or item.get("cover_shot_url") or item.get("picture")
+                
                 items_data.append({
                     "title": title,
-                    "price": str(price),
+                    "price": f"${price}" if not str(price).startswith("$") else str(price),
                     "link": link,
                     "images": [img] if img else [],
-                    "source": "Poshmark Fashion Resale"
+                    "source": "Poshmark Resale"
                 })
         else:
-            log(f"❌ Poshmark Fashion Resale Hiba ({res.status_code})")
+            log(f"❌ Poshmark Resale Hiba: {res.status_code}")
     except Exception as e:
-        log(f"❌ Kivétel történt (Poshmark Resale): {e}")
+        log(f"❌ Kivétel (Poshmark Resale): {e}")
 
 # 3. GRAILED API
-def test_grailed():
-    log("\n--- [3/3] Grailed API Teszt ---")
+def fetch_grailed():
+    log("\n--- [3/3] Grailed API Keresés ---")
     url = "https://grailed.p.rapidapi.com/search"
     headers = {
         "x-rapidapi-key": API_KEY,
         "x-rapidapi-host": "grailed.p.rapidapi.com"
     }
-    params = {"query": "techwear", "page": "1", "hitsPerPage": "10"}
+    params = {"query": "cyberpunk harness", "page": "1", "hitsPerPage": "12"}
     try:
-        res = requests.get(url, headers=headers, params=params, timeout=12)
+        res = requests.get(url, headers=headers, params=params, timeout=25)
         log(f"HTTP Válaszkód: {res.status_code}")
-        log(f"Válasz szöveg (első 300 kar.): {res.text[:300]}")
         
         if res.status_code == 200:
             data = res.json()
-            hits = data.get("data", {}).get("search", {}).get("hits", []) or data.get("hits", [])
-            log(f"✅ Talált elemek száma: {len(hits)}")
-            for item in hits[:10]:
-                title = item.get("title") or item.get("name") or "Grailed Termék"
-                price = f"${item.get('price', 'N/A')}"
+            hits = data.get("data", {}).get("search", {}).get("hits", []) or data.get("hits", []) or []
+            log(f"✅ Talált Grailed elemek száma: {len(hits)}")
+            
+            for item in hits[:12]:
+                title = item.get("title") or item.get("name") or "Cyberpunk Item"
+                price = item.get("price", "N/A")
                 link = item.get("url") or "https://www.grailed.com"
-                images = item.get("cover_photo", {}).get("url") or item.get("photo_url")
-                img_list = [images] if isinstance(images, str) else (images or [])
+                
+                img = None
+                if isinstance(item.get("cover_photo"), dict):
+                    img = item.get("cover_photo", {}).get("url")
+                if not img:
+                    img = item.get("photo_url") or item.get("image_url")
+                
                 items_data.append({
                     "title": title,
-                    "price": price,
+                    "price": f"${price}" if not str(price).startswith("$") else str(price),
                     "link": link,
-                    "images": img_list[:1],
-                    "source": "Grailed API"
+                    "images": [img] if img else [],
+                    "source": "Grailed"
                 })
         else:
-            log(f"❌ Grailed API Hiba ({res.status_code})")
+            log(f"❌ Grailed API Hiba: {res.status_code}")
     except Exception as e:
-        log(f"❌ Kivétel történt (Grailed): {e}")
+        log(f"❌ Kivétel (Grailed): {e}")
 
-# Tesztek futtatása
+# Keresések lefuttatása
 if API_KEY:
-    test_poshmark_listings()
-    test_poshmark_resale()
-    test_grailed()
+    fetch_poshmark_listings()
+    fetch_poshmark_resale()
+    fetch_grailed()
 
-# Tartalék kártyák, ha az API-k nem adnának vissza élő terméket
+# Tartalék kártyák (csak ha egyetlen API sem adna semmit)
 FALLBACK_ITEMS = [
     {
         "title": "Cyberpunk Tactical Chest Rig Harness",
         "price": "$79.00",
         "link": "https://www.grailed.com",
         "images": ["https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600&auto=format&fit=crop"],
-        "source": "Tartalék (Demo)"
-    },
-    {
-        "title": "Wasteland Heavy Duty Leather Strap Vest",
-        "price": "$135.00",
-        "link": "https://www.poshmark.com",
-        "images": ["https://images.unsplash.com/photo-1517445312882-bc9910d016b7?w=600&auto=format&fit=crop"],
-        "source": "Tartalék (Demo)"
+        "source": "Demo Backup"
     }
 ]
 
@@ -160,12 +171,12 @@ for item in display_items:
     <div class="product-card">
         <div class="source-badge">{item['source']}</div>
         <div class="image-gallery">
-            <img src="{img_src}" alt="Termékkép" loading="lazy">
+            <img src="{img_src}" alt="{item['title']}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600'">
         </div>
         <div class="card-body">
             <h3>{item['title']}</h3>
             <div class="price">{item['price']}</div>
-            <a href="{item['link']}" target="_blank" class="buy-btn">MEGTEKINTÉS</a>
+            <a href="{item['link']}" target="_blank" rel="noopener noreferrer" class="buy-btn">MEGTEKINTÉS</a>
         </div>
     </div>
     """
@@ -244,9 +255,9 @@ html_content = f"""<!DOCTYPE html>
         }}
         .image-gallery {{
             display: flex;
-            height: 240px;
+            height: 260px;
             overflow: hidden;
-            background: #000;
+            background: #111;
         }}
         .image-gallery img {{
             width: 100%;
@@ -337,4 +348,4 @@ html_content = f"""<!DOCTYPE html>
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write(html_content)
 
-print("Kész. HTML frissítve a diagnosztikai naplóval.")
+print("HTML Sikeresen kigenerálva!")
